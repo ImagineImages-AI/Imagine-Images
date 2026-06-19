@@ -52,70 +52,118 @@ img{max-width:100%;border-radius:12px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <script>
-emailjs.init({ publicKey: "IlkfWWs2z_u0vhsvz" });
+(function () {
+    emailjs.init({
+        publicKey: "IlkfWWs2z_u0vhsvz"
+    });
+})();
 
-let total=0;
-const gallery=document.getElementById('gallery');
+let total = 0;
 
-for(let i=1;i<=20;i++){
- let price=19+i*3;
- let card=document.createElement('div');
- card.className='card';
- card.innerHTML=`<div class="thumb">Artwork ${i}</div>
- <h3>AI Artwork ${i}</h3>
- <p>$${price}</p>
- <button onclick="addItem('AI Artwork ${i}',${price})">Add to Cart</button>`;
- gallery.appendChild(card);
+const gallery = document.getElementById("gallery");
+
+for (let i = 1; i <= 20; i++) {
+
+    let price = 19 + i * 3;
+
+    let card = document.createElement("div");
+
+    card.className = "card";
+
+    card.innerHTML = `
+        <div class="thumb">Artwork ${i}</div>
+        <h3>AI Artwork ${i}</h3>
+        <p>$${price}</p>
+        <button onclick="addItem('AI Artwork ${i}', ${price})">
+            Add to Cart
+        </button>
+    `;
+
+    gallery.appendChild(card);
 }
 
-function addItem(name,price){
- total+=price;
- document.getElementById('total').textContent=total;
- let li=document.createElement('li');
- li.textContent=name+' - $'+price;
- document.getElementById('cartItems').appendChild(li);
+function addItem(name, price) {
+
+    total += price;
+
+    document.getElementById("total").textContent = total;
+
+    const li = document.createElement("li");
+
+    li.textContent = `${name} - $${price}`;
+
+    document.getElementById("cartItems").appendChild(li);
 }
 
-function checkout(){
- const email=document.getElementById('email').value.trim();
+function checkout() {
 
- if(!email){
-   alert('Please enter your email.');
-   return;
- }
+    const email =
+        document.getElementById("email").value.trim();
 
- const cartItems=document.querySelectorAll('#cartItems li');
+    if (!email) {
+        alert("Please enter your email.");
+        return;
+    }
 
- if(cartItems.length===0){
-   alert('Your cart is empty.');
-   return;
- }
+    const cartItems =
+        document.querySelectorAll("#cartItems li");
 
- let items=[];
- cartItems.forEach(item => items.push(item.textContent));
+    if (cartItems.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
 
- emailjs.send(
-   'service_26cd2g5',
-   'template_h999a2v',
-   {
-     customer_email: email,
-     order_items: items.join('\n'),
-     order_total: '$' + total
-   }
- )
- .then(() => {
-   document.getElementById('msg').innerHTML =
-   'Order submitted! Complete payment on Venmo @MorgenT-Baer.';
+    let items = [];
 
-   document.getElementById('cartItems').innerHTML='';
-   document.getElementById('total').textContent='0';
-   total=0;
- })
- .catch((error) => {
-   console.error(error);
-   alert('EmailJS failed. Check your template variables.');
- });
+    cartItems.forEach(item => {
+        items.push(item.textContent);
+    });
+
+    emailjs.send(
+        "service_26cd2g5",
+        "template_h999a2v",
+        {
+            customer_email: email,
+            order_items: items.join("\n"),
+            order_total: "$" + total
+        }
+    )
+    .then(function () {
+
+        document.getElementById("msg").innerHTML = `
+            <div style="
+                background:#1f2937;
+                padding:15px;
+                border-radius:10px;
+                margin-top:10px;
+            ">
+                <strong>Order Submitted!</strong><br>
+                Please send payment to
+                <strong>@MorgenT-Baer</strong>
+                using the Venmo QR code.<br><br>
+                After payment is confirmed,
+                your artwork will be delivered to:
+                <strong>${email}</strong>
+            </div>
+        `;
+
+        document.getElementById("cartItems").innerHTML = "";
+
+        document.getElementById("total").textContent = "0";
+
+        total = 0;
+    })
+    .catch(function (error) {
+
+        console.error("EmailJS Error:", error);
+
+        alert(
+            "EmailJS Error:\\n\\n" +
+            (error.text || JSON.stringify(error))
+        );
+    });
 }
 </script>
 </body>
